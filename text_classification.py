@@ -34,12 +34,8 @@ def test_review(review):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset',
-                        default='output.csv',
-                        help='reviews_Clothing_Shoes_and_Jewelry_5.json, XXXX is the file')
-    parser.add_argument('--dataset3',
-                        default='output.csv',
-                        help='Software.json, XXXX is the file')
+    parser.add_argument('--dataset',default='output.csv', help='reviews_Clothing_Shoes_and_Jewelry_5.json,  ')
+    parser.add_argument('--dataset3', default='output.csv', help='Software.json, ')
     args = parser.parse_args()
 
 
@@ -47,7 +43,7 @@ def main():
 
     option = 2
 
-    if option == 1: #Claqué
+    if option == 1: #Claque
         #Accuracy is 100%
         param1 = "average_review_rating"
         param2 = "customer_reviews"

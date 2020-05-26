@@ -1,5 +1,4 @@
 import random
-import warnings
 import numpy as np
 import nltk
 from nltk.stem import WordNetLemmatizer
@@ -16,71 +15,6 @@ tonken_1 = nltk.sent_tokenize(raw)
 
 # Preprocessing using Lemmatization
 lemmatizer = WordNetLemmatizer()
-
-
-
-remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
-
-
-def LemNormalize(corpus):
-    return lemmatizetokens(nltk.word_tokenize(corpus.lower().translate(remove_punct_dict)))
-
-
-def lemmatizetokens(tokens):
-    return [lemmatizer.lemmatize(token) for token in tokens]
-
-# Keyword Matching
-WELCOME = ("hello", "hi", "greetings", "sup", "what's up", "hey", "bonjour", "salut", "slt")
-WELCOME_ANSWERS = ["Hello there!", "Hi there", "Greetings!", "Welcome here", "Welcome my friend"]
-REVIEW_CHECK_REQUEST = "i want a review"
-THANK_YOU = ["thanks", "you're welcome", "my plesure", "no problems"]
-
-
-def thank():
-    return random.choice(THANK_YOU)
-
-
-def welcome(sentence):
-    for word in sentence.split():
-        if word.lower() in WELCOME:
-            return random.choice(WELCOME_ANSWERS)
-
-
-"""Returns true if the user wants to evaluate a request from the model"""
-
-
-def review_request(sentence):
-    if sentence in REVIEW_CHECK_REQUEST:
-        return True
-    else:
-        return False
-
-
-def answer(user_response):
-    back = ''
-    tonken_1.append(user_response)
-    #vectorize the strings to feed the model
-    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
-    tfidfit = TfidfVec.fit_transform(tonken_1)
-
-    #As our text is vectorized, we use cosine similarity from sklearn to find the similarities in the model
-    vals = cosine_similarity(tfidfit[-1], tfidfit)
-    idx = vals.argsort()[0][-2]
-
-
-    flat = vals.flatten()
-    flat.sort()
-    req_tfidf = flat[-2]
-
-
-    if (req_tfidf != 0):
-        back = back + tonken_1[idx]
-        return back
-    else:
-        #if nothing matching is found
-        back = back + "I can not find a satisfiable answer for you"
-        return back
-
 
 def call():
 
@@ -118,6 +52,71 @@ def call():
         else:
             flag = False
             print("Jeff Bezos: Thank you for choosing us! See you later")
+
+
+remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
+
+
+def LemNormalize(corpus):
+    return lemmatizetokens(nltk.word_tokenize(corpus.lower().translate(remove_punct_dict)))
+
+
+def lemmatizetokens(tokens):
+    return [lemmatizer.lemmatize(token) for token in tokens]
+
+
+WELCOME = ("hello", "hi", "greetings", "sup", "what's up", "hey", "bonjour", "salut", "slt")
+WELCOME_ANSWERS = ["Hello there!", "Hi there", "Greetings!", "Welcome here", "Welcome my friend"]
+REVIEW_CHECK_REQUEST = "i want a review"
+THANK_YOU = ["thanks", "you're welcome", "my plesure", "no problems"]
+
+def answer(user_response):
+    back = ''
+    tonken_1.append(user_response)
+    #vectorize the strings to feed the model
+    tfidfit = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english').fit_transform(tonken_1)
+    idx = cosine_similarity(tfidfit[-1], tfidfit).argsort()[0][-2]
+
+    # Compute the cosine similarities
+    #cosine_score = cosine_similarity(tfidfit[-1], tfidfit).flatten()
+    # Selects the best
+    #cosine_best = cosine_score.sort()
+    #final_out = cosine_best[-2]
+
+    # req_tfidf = cosine_similarity(tfidfit[-1], tfidfit)
+
+    cosine_score = cosine_similarity(tfidfit[-1], tfidfit).flatten()
+    cosine_score.sort()
+    final_out = cosine_score[-2]
+
+    #req_tfidf = cosine_similarity(tfidfit[-1], tfidfit).flatten().sort()[-2]
+
+    if (final_out != 0):
+        back = back + tonken_1[idx]
+        return back
+    else:
+        #if nothing matching is found
+        back = back + "I can not find a satisfiable answer for you"
+        return back
+
+def thank():
+    return random.choice(THANK_YOU)
+
+
+def welcome(sentence):
+    for word in sentence.split():
+        if word.lower() in WELCOME:
+            return random.choice(WELCOME_ANSWERS)
+
+
+"""Returns true if the user wants to evaluate a request from the model"""
+
+
+def review_request(sentence):
+    if sentence in REVIEW_CHECK_REQUEST:
+        return True
+    else:
+        return False
 
 
 
